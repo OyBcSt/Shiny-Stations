@@ -105,7 +105,7 @@ server <- function(input, output){
     xlabel=paste("Time: ",as.Date(input$timeRange[1])," until ",as.Date(input$timeRange[2]))
     #xlabel="Time"
     plot(disl_temp_salt$Time,y_var,xlab=xlabel,ylab=y_label,pch=20,xlim=c(input$timeRange[1],input$timeRange[2]),xaxt="n")
-    axis.POSIXct(1, input$Time,format="%b %d")
+    axis.POSIXct(1, disl_temp_salt$Time,format="%b %d")
   })
   
 }
