@@ -2,9 +2,7 @@
 library(shiny)
 library(leaflet)
 
-r_colors <- rgb(t(col2rgb(colors()) / 255))
-names(r_colors) <- colors()
-load("/Users/lllowe/shiny-examples/david_google/disl_temp_salt.RData")
+load("./disl_temp_salt.RData")
 
 # make df for leaflet
 mapDF <- data.frame(
@@ -16,36 +14,41 @@ mapDF <- data.frame(
 
 
 # ui
-ui <- tagList(
+ui <- fluidPage(
+
+  tagList(
   # link js
   tags$head(tags$link(includeScript("func.js"))),
-  tags$head(tags$style("a{cursor:pointer;}")),
+  tags$head(tags$style("a{cursor:pointer;}"))
+  ),
   # UI
   navbarPage(
-    
-    title = "OyBcSt",
+    title="",
     tabPanel("Home", 
              value ="home",
              titlePanel("Mobile Bay Stations"),
              h4("Data available for each station"),
              leafletOutput("map")
     ),
-    tabPanel("Dauphin Island", 
+    tabPanel("Dauphin Island",
              value="disl",
-             titlePanel("Dauphin Island"),
+             titlePanel("Dauphin Island")
              #p("...some text here..."),
              #helpText("Would you like to go back? If so click ", 
              #         HTML("<a onclick=","customHref('home')" ,">",
-             #              "here","</a>")
+             #              "here","</a>"),
+    ,
+    fluidRow(
+      column(6,
     radioButtons("timeplot", "Values:",
-                 c("Temperature"="temp", "Salinity"="salt")),
+                 c("Temperature"="temp", "Salinity"="salt"))),
+    column(6,
     sliderInput("timeRange", label = "Time range",
                 min = as.POSIXct("2019-01-01 00:00:00"),
                 max = as.POSIXct("2019-12-31 15:00:00"),
                 value = c(as.POSIXct("2019-01-01 00:00:00"),
-                          as.POSIXct("2019-12-31 15:00:00"))),
-    plotOutput("timeplot"),
-    ),
+                          as.POSIXct("2019-12-31 15:00:00"))))),
+    plotOutput("timeplot")),
     tabPanel("I7-F",
              value="two",
              titlePanel("I7-F")
@@ -61,7 +64,10 @@ ui <- tagList(
              #helpText("Would you like to go back? If so click ", 
              #         HTML("<a onclick=","customHref('home')" ,">",
              #              "here","</a>")))
-  )
+  ),
+  tabPanel("All Stations",value="flask",titlePanel("All Stations"),
+           HTML('<iframe width="560" height="315" src="http://149.165.154.229" frameborder="0" allowfullscreen
+      style="position:absolute;top:90;left:0;width:100%;height:100%;"></iframe>'))
 )
 )
 
