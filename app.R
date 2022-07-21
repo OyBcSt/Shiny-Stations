@@ -66,7 +66,7 @@ ui <- fluidPage(
              #              "here","</a>")))
   ),
   tabPanel("All Stations",value="flask",titlePanel("All Stations"),
-           HTML('<iframe width="560" height="315" src="http://149.165.154.229" frameborder="0" allowfullscreen
+           HTML('<iframe width="560" height="315" src="https://flask.oybcst.tk" frameborder="0" allowfullscreen
       style="position:absolute;top:90;left:0;width:100%;height:100%;"></iframe>'))
 )
 )
