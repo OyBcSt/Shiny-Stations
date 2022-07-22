@@ -32,24 +32,28 @@ ui <- fluidPage(
     ),
     tabPanel("Dauphin Island",
              value="disl",
-             titlePanel("Dauphin Island")
+             titlePanel("Dauphin Island"),
              #p("...some text here..."),
              #helpText("Would you like to go back? If so click ", 
              #         HTML("<a onclick=","customHref('home')" ,">",
              #              "here","</a>"),
-    ,
     fluidRow(
       column(6,
-    radioButtons("timeplot", "Values:",
-                 c("Temperature"="temp", "Salinity"="salt"))),
-    column(6,
-    sliderInput("timeRange", label = "Time range",
-                min = as.POSIXct("2019-01-01 00:00:00"),
-                max = as.POSIXct("2019-12-31 15:00:00"),
-                value = c(as.POSIXct("2019-01-01 00:00:00"),
-                          as.POSIXct("2019-12-31 15:00:00"))))),
-    plotOutput("timeplot")),
-    tabPanel("I7-F",
+        radioButtons("timeplot", "Values:",
+                 c("Temperature"="temp", "Salinity"="salt", "Both"="both"))),
+      column(6,
+        sliderInput("timeRange", label = "Time range",
+                min = as.POSIXct("2019-01-01 00:00:00",tz = 'CST6CDT'),
+                max = as.POSIXct("2019-12-31 15:00:00",tz = 'CST6CDT'),
+                value = c(as.POSIXct("2019-01-01 00:00:00",tz = 'CST6CDT'),
+                          as.POSIXct("2019-12-31 15:00:00",tz = 'CST6CDT')))
+        )
+      ),
+
+        plotOutput("timeplot")
+  ),
+  
+        tabPanel("I7-F",
              value="two",
              titlePanel("I7-F")
              #p("...some text here..."),
@@ -92,21 +96,56 @@ server <- function(input, output){
   })
   
   output$timeplot <- renderPlot({
-     if(input$timeplot=="temp"){
+     if(input$timeplot=="temp" || input$timeplot=="both"){
        y_var <- disl_temp_salt$Temperature
-       y_label <- "Temperature"
-     }
-    if(input$timeplot=="salt"){
+       y_label <- "Temperature (\u00B0C)"
+       y_letter <- "T"
+     }else{
       y_var <- disl_temp_salt$Salinity
       y_label <- "Salinity"
+      y_letter <- "S"
+     }
+    if(input$timeplot=="both"){
+      y2_var <- disl_temp_salt$Salinity
+      y2_label <- "Salinity"
+      y2_letter <- "S"
     }
-    output$from <- renderText(input$timeRange[1]);
-    output$to <- renderText(input$timeRange[2]);
-    xlabel=paste("Time: ",as.Date(input$timeRange[1])," until ",as.Date(input$timeRange[2]))
-    #xlabel="Time"
-    plot(disl_temp_salt$Time,y_var,xlab=xlabel,ylab=y_label,pch=20,xlim=c(input$timeRange[1],input$timeRange[2]),xaxt="n")
-    axis.POSIXct(1, disl_temp_salt$Time,format="%b %d")
+    
+    ind_1 <- which(disl_temp_salt$Time == input$timeRange[1])
+    ind_2 <- which(disl_temp_salt$Time == input$timeRange[2])
+    Time <- disl_temp_salt$Time[ind_1:ind_2]
+    Y_var <- y_var[ind_1:ind_2]
+    i_min <- format(min(Y_var),digits=3)
+    i_max <- format(max(Y_var),digits=3)
+    i_mean <- format(mean(Y_var),digits=3)
+    if(input$timeplot=="both"){
+      Y2_var <- y2_var[ind_1:ind_2]
+      i2_min <- format(min(Y2_var),digits=3)
+      i2_max <- format(max(Y2_var),digits=3)
+      i2_mean <- format(mean(Y2_var),digits=3)     
+    }
+    
+    xtitle=paste("Time: ",as.Date(input$timeRange[1])," until ",as.Date(input$timeRange[2]))
+    #xlabel=paste(y_label," - ")
+    x_label <- paste0(y_letter,"min=",i_min,"    ",
+                     y_letter,"mean=",i_mean,"    ",
+                     y_letter,"max=",i_max)
+    if(input$timeplot=="both"){
+      x_label <- paste0(y_letter,"min=",i_min,"    ",
+                        y_letter,"mean=",i_mean,"    ",
+                        y_letter,"max=",i_max,"       ",
+                        y2_letter,"min=",i2_min,"    ",
+                        y2_letter,"mean=",i2_mean,"    ",
+                        y2_letter,"max=",i2_max)
+    }
+    plot(Time,Y_var,main=xtitle,xlab=x_label,ylab=y_label,pch=20,xaxt="n",cex=0.3,ylim=c(0,35),xlim=c(input$timeRange[1],input$timeRange[2]))
+    axis.POSIXct(1, Time,format="%b %d")
+    if(input$timeplot!="both") abline(h = c(i_min,i_mean,i_max), col = c("#D1D0DE","#636D97","#D1D0DE"),lwd=2)
+    if(input$timeplot=="both"){
+      points(Time,Y2_var,pch=20,cex=0.3,col="red")
+    }
   })
+  
   
 }
 
