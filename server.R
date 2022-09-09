@@ -128,29 +128,26 @@ function(input, output, session) {
     data <- data[rowSums(is.na(data)) == 0,]
     
     Time <- as.Date(data$Date, format = "%m/%d/%Y")
-    Temperature <- data$T.Surface
-    Salinity <- data$S.Surface
+    TSurf <- data$T.Surface
+    Tbot <- data$T.Bottom
     
     output$timeplot <- renderPlot({
-      if(input$timeplot=="temp" || input$timeplot=="both"){
-        Y_var <- Temperature
-        y_label <- "Temperature (\u00B0C)"
-        y_letter <- "T"
+      if(input$timeplot=="surftemp" || input$timeplot=="both"){
+        Y_var <- TSurf
+        y_label <- "Surface Temperature (\u00B0C)"
+        y_letter <- "Ts"
       }else{
-        Y_var <- Salinity
-        y_label <- "Salinity"
-        y_letter <- "S"
+        Y_var <- Tbot
+        y_label <- "Bottom Temperature (\u00B0C)"
+        y_letter <- "Tb"
       }
       if(input$timeplot=="both"){
-        Y2_var <- Salinity
-        y_label <- "Temperature (\u00B0C), Salinity"
-        y2_letter <- "S"
+        Y2_var <- Tbot
+        y_label <- "Surface, Bottom Temperature"
+        y2_letter <- "Tb"
       }
       
-      #ind_1 <- which(disl_temp_salt$Time == input$timeRange[1])
-      #ind_2 <- which(disl_temp_salt$Time == input$timeRange[2])
-      #Time <- disl_temp_salt$Time[ind_1:ind_2]
-      #Y_var <- y_var[ind_1:ind_2]
+
       i_min <- format(min(Y_var),digits=3)
       i_max <- format(max(Y_var),digits=3)
       i_mean <- format(mean(Y_var),digits=3)
@@ -161,33 +158,39 @@ function(input, output, session) {
         i2_mean <- format(mean(Y2_var),digits=3)
       }
       
-      #xtitle=paste("Time: ",as.Date(input$timeRange[1])," until ",as.Date(input$timeRange[2]))
-      #xlabel=paste(y_label," - ")
       x_label <- paste0(y_letter,"min=",i_min,"    ",
                         y_letter,"mean=",i_mean,"    ",
                         y_letter,"max=",i_max)
       if(input$timeplot=="both"){
-        x_label <- paste0(y_letter,"min=",i_min,"    ",
-                          y_letter,"mean=",i_mean,"    ",
-                          y_letter,"max=",i_max,"       ",
-                          y2_letter,"min=",i2_min,"    ",
-                          y2_letter,"mean=",i2_mean,"    ",
-                          y2_letter,"max=",i2_max)
+        surf_label <- paste("Surface: min=",i_min,
+                          "mean=",i_mean,
+                          "max=",i_max)
+        bot_label <- paste(
+                          "Bottom:  min=",i2_min,
+                          "mean=",i2_mean,
+                          "max=",i2_max)
       }
- #     plot(Time,Y_var,main=xtitle,xlab=x_label,ylab=y_label,pch=20,xaxt="n",cex=0.3,ylim=c(0,35),xlim=c(input$timeRange[1],input$timeRange[2]))
- #     axis.POSIXct(1, Time,format="%b %d")
-      plot(Time,Y_var,xlab=x_label,ylab=y_label,xaxt="n",pch=20,cex=0.3,col="black",bg="black",ylim=c(0,35))
-      axis.Date(1, Time,format="%b %d")
-      if(input$timeplot!="both") abline(h = c(i_min,i_mean,i_max), col = c("#D1D0DE","#636D97","#D1D0DE"),lwd=2)
+
+     
+      if(input$timeplot!="both") {
+        plot(Time,Y_var,xlab=x_label,ylab=y_label,xaxt="n",pch=20,cex=0.3,col="black",bg="black",ylim=c(10,35))
+        axis.Date(1, Time,format="%b %d") 
+        abline(h = c(i_min,i_mean,i_max), col = c("#D1D0DE","#636D97","#D1D0DE"),lwd=2)
+      }
+        
       if(input$timeplot=="both"){
+        plot(Time,Y_var,xlab="",ylab="",xaxt="n",pch=20,cex=0.3,col="black",bg="black",ylim=c(10,35))
+        axis.Date(1, Time,format="%b %d")
         points(Time,Y2_var,pch=20,cex=0.3,col="red",bg="red")
+        mtext(surf_label, side=1, line=3, col="black", cex=1, adj=0)
+        mtext(bot_label, side=1, line=4, col="red", cex=1, adj=0)
+        
       }
     })
     
   }) 
     
    
-
   
   # When map is clicked, show a popup with city info
   observe({

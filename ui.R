@@ -72,7 +72,7 @@ navbarPage("Mobile Bay Stations", id="nav",
              column(2,
                     h3("Values"),
                     radioButtons("timeplot", "Values:",
-                                 c("Temperature"="temp", "Salinity"="salt", "Both"="both"))),
+                                 c("Surface Temperature"="surftemp", "Bottom Temperature"="bottemp", "Both"="both"))),
              column(8,
                     plotOutput("timeplot")    
                     ),
